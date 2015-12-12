@@ -2,7 +2,7 @@ install:
   - echo Installed Pythons
   - dir c:\Python*
 
-  - C:\Python35\python -m pip install tox
+  - C:\Python27\python -m pip install detox
 
 build: false  # Not a C# project, build stuff at the test step instead.
 
@@ -16,4 +16,4 @@ test_script:
           py27-xdist,
           py35-xdist
     '
-  - C:\Python35\python -m tox -e "%TESTENVS%"
+  - C:\Python27\Scripts\detox -e "%TESTENVS%"
