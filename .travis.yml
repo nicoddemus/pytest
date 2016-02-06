@@ -27,7 +27,7 @@ env:
     - TESTENV=doctesting
     - TESTENV=py27-cxfreeze
 
-script: tox --recreate -e $TESTENV
+script: tox --recreate -e $TESTENV -- --color=yes
 
 notifications:
   irc:
