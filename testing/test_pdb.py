@@ -311,3 +311,20 @@ class TestPDB:
         child.sendeof()
         if child.isalive():
             child.wait()
+
+    def test_pdb_custom_cls(self, testdir):
+        import pdb
+        class _CustomPdb(pdb.Pdb, object):
+            def __init__(self, *args, **kwargs):
+                print("init _CustomPdb")
+                super(_CustomPdb, self).__init__(*args, **kwargs)
+        _pytest._CustomPdb = _CustomPdb
+
+        p1 = testdir.makepyfile("""xxx """)
+        result = testdir.runpytest_inprocess(
+            "--pdbcls=_pytest:_CustomPdb", p1)
+        result.stdout.fnmatch_lines([
+            "init _CustomPdb",
+            "*NameError*xxx*",
+            "*1 error*",
+        ])
