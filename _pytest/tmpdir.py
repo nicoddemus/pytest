@@ -52,17 +52,18 @@ class TempdirFactory:
                     basetemp.remove()
                 basetemp.mkdir()
             else:
-                temproot = py.path.local.get_temproot()
-                user = get_user()
-                if user:
-                    # use a sub-directory in the temproot to speed-up
-                    # make_numbered_dir() call
-                    rootdir = temproot.join('pytest-of-%s' % user)
-                else:
-                    rootdir = temproot
-                rootdir.ensure(dir=1)
-                basetemp = py.path.local.make_numbered_dir(prefix='pytest-',
-                                                           rootdir=rootdir)
+                basetemp = py.path.local.make_numbered_dir(prefix='pytest-')
+                # temproot = py.path.local.get_temproot()
+                # user = get_user()
+                # if user:
+                #     # use a sub-directory in the temproot to speed-up
+                #     # make_numbered_dir() call
+                #     rootdir = temproot.join('pytest-of-%s' % user)
+                # else:
+                #     rootdir = temproot
+                # rootdir.ensure(dir=1)
+                # basetemp = py.path.local.make_numbered_dir(prefix='pytest-',
+                #                                            rootdir=rootdir)
             self._basetemp = t = basetemp.realpath()
             self.trace("new basetemp", t)
             return t
