@@ -52,7 +52,7 @@ To execute it::
     ======= 1 failed in 0.12 seconds ========
 
 
-Due to ``py.test``'s detailed assertion introspection, only plain ``assert`` statements are used. See `getting-started <http://docs.pytest.org/en/latest/getting-started.html#our-first-test-run>`_ for more examples.
+Due to ``pytest``'s detailed assertion introspection, only plain ``assert`` statements are used. See `getting-started <http://docs.pytest.org/en/latest/getting-started.html#our-first-test-run>`_ for more examples.
 
 
 Features
