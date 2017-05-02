@@ -109,6 +109,7 @@ class AssertionRewritingHook(object):
         # cached pyc is always a complete, valid pyc. Operations on it must be
         # atomic. POSIX's atomic rename comes in handy.
         write = not sys.dont_write_bytecode
+        write = False
         cache_dir = os.path.join(fn_pypath.dirname, "__pycache__")
         if write:
             try:
