@@ -1,10 +1,8 @@
 sudo: false
 language: python
 python:
-    - '3.5'
-# command to install dependencies
+    - '3.6'
 install: "pip install -U tox"
-# # command to run tests
 env:
   matrix:
     # coveralls is not listed in tox's envlist, but should run in travis
@@ -15,14 +13,14 @@ env:
     - TOXENV=py27
     - TOXENV=py33
     - TOXENV=py34
-    - TOXENV=py35
+    - TOXENV=py36
     - TOXENV=pypy
     - TOXENV=py27-pexpect
     - TOXENV=py27-xdist
     - TOXENV=py27-trial
-    - TOXENV=py35-pexpect
-    - TOXENV=py35-xdist
-    - TOXENV=py35-trial
+    - TOXENV=py36-pexpect
+    - TOXENV=py36-xdist
+    - TOXENV=py36-trial
     - TOXENV=py27-nobyte
     - TOXENV=doctesting
     - TOXENV=freeze
@@ -30,8 +28,8 @@ env:
 
 matrix:
   include:
-    - env: TOXENV=py36
-      python: '3.6'
+    - env: TOXENV=py35
+      python: '3.5'
     - env: TOXENV=py37
       python: 'nightly'
   allow_failures:
