@@ -380,8 +380,7 @@ class FDCapture:
             f.seek(0)
             res = f.read()
         except (OSError, ValueError):
-            self.tmpfile = open(os.devnull, "r")
-            self.tmpfile_fd = self.tmpfile.fileno()
+            self._open_tmpfile_as_devnull()
             res = ''
         if res:
             enc = getattr(f, "encoding", None)
@@ -410,9 +409,12 @@ class FDCapture:
         try:
             os.dup2(self.tmpfile_fd, self.targetfd)
         except (OSError, ValueError):
-            self.tmpfile = open(os.devnull, "r")
-            self.tmpfile_fd = self.tmpfile.fileno()
+            self._open_tmpfile_as_devnull()
             self.targetfd = open(os.devnull, "r").fileno()
+
+    def _open_tmpfile_as_devnull(self):
+        self.tmpfile = open(os.devnull, "r")
+        self.tmpfile_fd = self.tmpfile.fileno()
 
     def writeorg(self, data):
         """ write to original file descriptor. """
