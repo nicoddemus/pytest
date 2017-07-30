@@ -1160,5 +1160,13 @@ def test_pickling_and_unpickling_enocded_file():
     ef_as_str = pickle.dumps(ef)
     pickle.loads(ef_as_str)
 
-def test_closed_handle():
-    sys.stderr.close()
+
+def test_close_handle_during_capture(testdir):
+    """Ensure that pytest doesn't blow up if stderr our stdout gets closed"""
+    testdir.makepyfile('''
+        import sys
+        def test():
+            sys.stderr.close()
+    ''')
+    result = testdir.runpytest_subprocess()
+    result.assert_outcomes(passed=1)

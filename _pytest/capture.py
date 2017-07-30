@@ -379,7 +379,7 @@ class FDCapture:
             f = self.tmpfile
             f.seek(0)
             res = f.read()
-        except OSError:
+        except (OSError, ValueError):
             self.tmpfile = open(os.devnull, "r")
             self.tmpfile_fd = self.tmpfile.fileno()
             res = ''
@@ -409,7 +409,7 @@ class FDCapture:
         self.syscapture.resume()
         try:
             os.dup2(self.tmpfile_fd, self.targetfd)
-        except OSError:
+        except (OSError, ValueError):
             self.tmpfile = open(os.devnull, "r")
             self.tmpfile_fd = self.tmpfile.fileno()
             self.targetfd = open(os.devnull, "r").fileno()
