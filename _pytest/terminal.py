@@ -128,8 +128,9 @@ class TerminalReporter:
         self.config = config
         self.verbosity = self.config.option.verbose
         self.showheader = self.verbosity >= 0
-        self.showfspath = self.verbosity >= 0
-        self.showlongtestinfo = self.verbosity > 0
+        self._progress_reporter = None
+        #self.showfspath = self.verbosity >= 0
+        #self.showlongtestinfo = self.verbosity > 0
         self._numcollected = 0
 
         self.stats = {}
@@ -148,6 +149,7 @@ class TerminalReporter:
         return char in self.reportchars
 
     def write_fspath_result(self, nodeid, res):
+        assert 0
         fspath = self.config.rootdir.join(nodeid.split("::")[0])
         if fspath != self.currentfspath:
             self.currentfspath = fspath
@@ -157,6 +159,7 @@ class TerminalReporter:
         self._tw.write(res)
 
     def write_ensure_prefix(self, prefix, extra="", **kwargs):
+        return
         if self.currentfspath != prefix:
             self._tw.line()
             self.currentfspath = prefix
@@ -166,6 +169,7 @@ class TerminalReporter:
             self.currentfspath = -2
 
     def ensure_newline(self):
+        return
         if self.currentfspath:
             self._tw.line()
             self.currentfspath = None
@@ -232,6 +236,12 @@ class TerminalReporter:
     def pytest_runtest_logstart(self, nodeid, location):
         # ensure that the path is printed before the
         # 1st test of a module starts running
+        self._progress_reporter = ProgressReporter(self.writer, self.verbosity,
+                                                   self.startdir, self.config.rootdir,
+                                                   self._numcollected)
+        self._progress_reporter.runtest_logstart(nodeid, location)
+        return
+
         if self.showlongtestinfo:
             line = self._locationline(nodeid, *location)
             self.write_ensure_prefix(line, "")
@@ -245,9 +255,25 @@ class TerminalReporter:
         cat, letter, word = res
         self.stats.setdefault(cat, []).append(rep)
         self._tests_ran = True
-        if not letter and not word:
-            # probably passed setup/teardown
-            return
+        if isinstance(word, tuple):
+            word, markup = word
+        else:
+            if rep.passed:
+                markup = {'green': True}
+            elif rep.failed:
+                markup = {'red': True}
+            elif rep.skipped:
+                markup = {'yellow': True}
+            else:
+                markup = {}
+            
+        self._progress_reporter.runtest_logreport(report, letter, word, markup)
+        return
+
+
+
+        location_line = self._locationline(rep.nodeid, *rep.location)
+        
         if self.verbosity <= 0:
             if not hasattr(rep, 'node') and self.showfspath:
                 self.write_fspath_result(rep.nodeid, letter)
@@ -440,6 +466,7 @@ class TerminalReporter:
                 excrepr.reprcrash.toterminal(self._tw)
 
     def _locationline(self, nodeid, fspath, lineno, domain):
+        return
         def mkrel(nodeid):
             line = self.config.cwd_relative_nodeid(nodeid)
             if domain and line.endswith(domain):
@@ -647,3 +674,97 @@ def _plugin_nameversions(plugininfo):
         if name not in l:
             l.append(name)
     return l
+
+
+class ProgressReporter:
+
+    def __init__(self, writer, verbosity, startdir, rootdir, numcollected):
+        self.writer = self._tw = writer
+        self.verbosity = verbosity
+        
+        self.showfspath = verbosity >= 0
+        self.showlongtestinfo = verbosity > 0
+        
+        self.numcollected = numcollected
+
+        self.startdir = startdir
+        self.rootdir = rootdir
+        self.currentfspath = None
+
+
+    def runtest_logstart(self, nodeid, location):
+        # ensure that the path is printed before the
+        # 1st test of a module starts running
+        if self.showlongtestinfo:
+            line = self._locationline(nodeid, *location)
+            self.write_ensure_prefix(line, "")
+        elif self.showfspath:
+            fsid = nodeid.split("::")[0]
+            self.write_fspath_result(fsid, "")
+
+    def write_fspath_result(self, nodeid, res):
+        fspath = self.rootdir.join(nodeid.split("::")[0])
+        if fspath != self.currentfspath:
+            self.currentfspath = fspath
+            fspath = self.startdir.bestrelpath(fspath)
+            self._tw.line()
+            self._tw.write(fspath + " ")
+        self._tw.write(res)
+
+    def write_ensure_prefix(self, prefix, extra="", **kwargs):
+        if self.currentfspath != prefix:
+            self._tw.line()
+            self.currentfspath = prefix
+            self._tw.write(prefix)
+        if extra:
+            self._tw.write(extra, **kwargs)
+            self.currentfspath = -2
+
+    def ensure_newline(self):
+        if self.currentfspath:
+            self._tw.line()
+            self.currentfspath = None
+
+    def _locationline(self, nodeid, fspath, lineno, domain):
+        def mkrel(nodeid):
+            line = self.config.cwd_relative_nodeid(nodeid)
+            if domain and line.endswith(domain):
+                line = line[:-len(domain)]
+                l = domain.split("[")
+                l[0] = l[0].replace('.', '::')  # don't replace '.' in params
+                line += "[".join(l)
+            return line
+        # collect_fspath comes from testid which has a "/"-normalized path
+
+        if fspath:
+            res = mkrel(nodeid).replace("::()", "")  # parens-normalization
+            if nodeid.split("::")[0] != fspath.replace("\\", "/"):
+                res += " <- " + self.startdir.bestrelpath(fspath)
+        else:
+            res = "[location]"
+        return res + " "
+
+
+    def runtest_logreport(self, report, letter, word, markup):
+        rep = report
+        if not letter and not word:
+            # probably passed setup/teardown
+            return
+        if self.verbosity <= 0:
+            if not hasattr(rep, 'node') and self.showfspath:
+                self.write_fspath_result(rep.nodeid, letter)
+            else:
+                self.writer.write(letter)
+        else:
+            line = self._locationline(rep.nodeid, *rep.location)
+            if not hasattr(rep, 'node'):
+                self.write_ensure_prefix(line, word, **markup)
+                # self._tw.write(word, **markup)
+            else:
+                self.ensure_newline()
+                if hasattr(rep, 'node'):
+                    self._tw.write("[%s] " % rep.node.gateway.id)
+                self._tw.write(word, **markup)
+                self._tw.write(" " + line)
+                self.currentfspath = -2
+
