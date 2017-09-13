@@ -4,7 +4,7 @@ python:
   - '3.6'
 # command to install dependencies
 install:
-  - pip install --upgrade --pre tox
+  - pip install tox==2.7.0
 # # command to run tests
 env:
   matrix:
