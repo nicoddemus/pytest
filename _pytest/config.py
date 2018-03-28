@@ -209,6 +209,7 @@ class PytestPluginManager(PluginManager):
         self.rewrite_hook = _pytest.assertion.DummyRewriteHook()
         # Used to know when we are importing conftests after the pytest_configure stage
         self._configured = False
+        self._config = None
 
     def addhooks(self, module_or_class):
         """
@@ -285,6 +286,7 @@ class PytestPluginManager(PluginManager):
                                 "trylast: mark a hook implementation function such that the "
                                 "plugin machinery will try to call it last/as late as possible.")
         self._configured = True
+        self._config = config
 
     def _warn(self, message):
         kwargs = message if isinstance(message, dict) else {
@@ -351,7 +353,18 @@ class PytestPluginManager(PluginManager):
                         continue
                     conftestpath = parent.join("conftest.py")
                     if conftestpath.isfile():
-                        mod = self._importconftest(conftestpath)
+                        try:
+                            mod = self._importconftest(conftestpath)
+                        except ConftestImportFailure as e:
+                            from _pytest.nodes import Collector
+                            from _pytest._code.code import ExceptionInfo
+                            from _pytest.python import filter_traceback
+                            exc_info = ExceptionInfo(e.excinfo)
+                            if self._config.getoption('verbose') < 2:
+                                exc_info.traceback = exc_info.traceback.filter(filter_traceback)
+                            exc_repr = exc_info.getrepr(style='short') if exc_info.traceback else exc_info.exconly()
+                            formatted_tb = safe_str(exc_repr)
+                            raise Collector.CollectError(formatted_tb)
                         clist.append(mod)
 
             self._path2confmods[path] = clist
