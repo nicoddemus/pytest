@@ -266,6 +266,8 @@ def _write_pyc(state, co, source_stat, pyc):
             size = source_stat.size & 0xFFFFFFFF
             fp.write(struct.pack("<ll", mtime, size))
             if six.PY2:
+                import types
+                assert isinstance(fp.file, types.FileType), "unexpected file type: {!r} ({!r})".format(fp.file, type(fp.file))
                 marshal.dump(co, fp.file)
             else:
                 marshal.dump(co, fp)
