@@ -1629,6 +1629,11 @@ class TestFixtureManagerParseFactories(object):
         reprec = testdir.inline_run()
         reprec.assertoutcome(passed=2)
 
+    def test_autouse_package_fixtures(self, testdir):
+        testdir.copy_example("fixtures/test_autouse_package_fixtures")
+        result = testdir.runpytest()
+        result.stdout.fnmatch_lines(["*1 passed*"])
+
     def test_collect_custom_items(self, testdir):
         testdir.copy_example("fixtures/custom_item")
         result = testdir.runpytest("foo")
