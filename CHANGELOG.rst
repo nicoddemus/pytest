@@ -18,6 +18,31 @@ with advance notice in the **Deprecations** section of releases.
 
 .. towncrier release notes start
 
+pytest 5.0.2 (2019-07-23)
+=========================
+
+Bug Fixes
+---------
+
+- `#5524 <https://github.com/pytest-dev/pytest/issues/5524>`_: Fix issue where ``tmp_path`` and ``tmpdir`` would not remove directories containing files marked as read-only,
+  which could lead to pytest crashing when executed a second time with the ``--basetemp`` option.
+
+
+- `#5578 <https://github.com/pytest-dev/pytest/issues/5578>`_: Improve type checking for some exception-raising functions (``pytest.xfail``, ``pytest.skip``, etc)
+  so they provide better error messages when users meant to use marks (for example ``@pytest.xfail``
+  instead of ``@pytest.mark.xfail``).
+
+
+- `#5606 <https://github.com/pytest-dev/pytest/issues/5606>`_: Fixed internal error when test functions were patched with objects that cannot be compared
+  for truth values against others, like ``numpy`` arrays.
+
+
+- `#5634 <https://github.com/pytest-dev/pytest/issues/5634>`_: ``pytest.exit`` and ``bdb.BdbQuit`` are now correctly handled in ``unittest`` cases.
+
+
+- `#5650 <https://github.com/pytest-dev/pytest/issues/5650>`_: Improved output when parsing an ini configuration file fails.
+
+
 pytest 5.0.1 (2019-07-04)
 =========================
 
