@@ -40,6 +40,17 @@ Improved Documentation
 - `#5517 <https://github.com/pytest-dev/pytest/issues/5517>`_: Improve "Declaring new hooks" section in chapter "Writing Plugins"
 
 
+
+pytest 4.99.4 (2019-07-04)
+==========================
+
+Bug Fixes
+---------
+
+- `#5479 <https://github.com/pytest-dev/pytest/issues/5479>`_: Improve quoting in ``raises`` match failure message.
+
+
+
 pytest 4.99.2 (2019-07-04)
 ==========================
 
