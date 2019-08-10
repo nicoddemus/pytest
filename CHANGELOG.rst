@@ -49,6 +49,16 @@ Bug Fixes
 - `#5479 <https://github.com/pytest-dev/pytest/issues/5479>`_: Improve quoting in ``raises`` match failure message.
 
 
+
+pytest 4.99.3 (2019-07-04)
+==========================
+
+Bug Fixes
+---------
+
+- `#5479 <https://github.com/pytest-dev/pytest/issues/5479>`_: Improve quoting in ``raises`` match failure message.
+
+
 pytest 4.99.1 (2019-07-04)
 ==========================
 
