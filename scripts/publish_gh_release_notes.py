@@ -6,9 +6,9 @@ This script is meant to be executed after a successful deployment in Travis.
 Uses the following environment variables:
 
 * GIT_TAG: the name of the tag of the current commit.
-* GH_TOKEN: a personal access token with 'repo' permissions. It should be encrypted using:
+* GH_RELEASE_NOTES_TOKEN: a personal access token with 'repo' permissions. It should be encrypted using:
 
-    $travis encrypt GH_TOKEN=<token> -r pytest-dev/pytest
+    $travis encrypt GH_RELEASE_NOTES_TOKEN=<token> -r pytest-dev/pytest
 
   And the contents pasted in the ``env.global.secure`` section in the ``travis.yml`` file.
 
@@ -66,9 +66,9 @@ def main(argv):
             print("tag_name not given and $TRAVIS_TAG not set", file=sys.stderr)
             return 1
 
-    token = os.environ.get("GH_TOKEN")
+    token = os.environ.get("GH_RELEASE_NOTES_TOKEN")
     if not token:
-        print("GH_TOKEN not set", file=sys.stderr)
+        print("GH_RELEASE_NOTES_TOKEN not set", file=sys.stderr)
         return 1
 
     rst_body = parse_changelog(tag_name)
