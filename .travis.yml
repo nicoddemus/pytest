@@ -77,7 +77,7 @@ jobs:
       script: skip
       env:
         # used by publish_gh_release_notes
-        - secure: "0ldsOQ5B7bFuOQl6ovvttl3dW9zDh+YG7NjKTESlKGfdzNgWnuNIEoAfu7qj8r0RCXmF4nejQM5X+KhTIdWv4NCNFGSB3QHEQ82vltuh4A400vYj76DLg7YWupFAGyNWwtsi/DPAsIoLkjoTcX8KgwYqqMx6wrNGQ9qz8VWQn+BDtg/A98D33ACpZyNLxQONQjY+EIqmS50XMkJLci+929tjA9xMC2DQCEIzOkDhJhcclGHJKY8tvhjPUGUEmNPk9KWOacaaPSroLvLAEnn28s92V3Haf8+2kkff5/cpgWLzUtf9klx72LXNQ5+1mTTxAJcN3Zxxk5ci1UCQh4hjFc2/xndf5wjPrcwlyf/q5BM/PXg5a4bJfBOV2eVlLC97KfP9MZThlxplMbZSHQLMbCFrWlWztL6xDbOHialfUq0nQmiq5gd7e0izwBXDmSbWGOMvpKutdntBJGAtn6tFO+wDR4jrPwT2sCZYOt10wQ8jiePw/30hN5bjv84+YpSyEQ6ZIK9bnx9Mo+142wXQbsjaf1YRBLsT4flGByKomR2HTf1vs++8JZmdHU60JY9YR/HYFd6wPji5Dk1Qd6bFILFXtqn3hGi3KRZzJ9fVVsQ2vfwbKBcux8pDnzTNioGDvqDRBSJreQhDnVlxcavK6vpVsAPb/VdAoVaUSlhZZAg="
+        - secure: "ZYy3kXLZHdv2yd2JxbexlrVUJR7aMYPyAcHrgBQJvjF34JAa0XOx6F0z2JT7PQepwyy0oxpPn/mvnk8fQkZ57mUy4LjQuauhWDVvtIhsQb3p715Uwd7/GgUn4KHNHJNzb2lYj5MIVYlq2YARGYuqrd+afy0WndGN+LNAS3EI+C97/9TLihM5LgVToA/22gxcsPmNOhWG1l5Upls/e0AuML8f1qF7c5yIb9+bVWZl9448FhJfOlEk8PNh/OPEiCo3BnqQhvN/8uzUtOwFybktPJhJvlTjkbrvlo5dh6y7MysWDJ2k1Ga3nqVIozJDPlJwkA3xuot5kQJSxBJQhKtUWC/IZzbeMcgS+aTSaKthY/zq0snJaOzc8JTnpBcsdQ5QDjopA477Ft0jfxeKHIuRpePFmE6oOJXXYcdOapY9IZTJN5IXDJaVpV1/8XQXng6kcLlve6aKc47HSSnd3RUFPOTyrmQIg3rAVCkjfoN0Pnf564n/A+++OjM2n3Mx2nWNsBFEBZAbCBL1y5YH2kywWzVOo+3RwGAsfnJfgrED+fa5rhJLpgWu1WMIrpwQmJBkm4NQup5Tthmw+nW8eH2R71tn3iXRR36iWjQMN3zlPQ6HqUe0cuRTa+2BW7pEhs4cTfvOrq+YUERhe/RvvFGBAvreahnuu36XUE8HJTWvQUM="
       addons:
         # required by publish_gh_release_notes
         apt:
