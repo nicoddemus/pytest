@@ -13,8 +13,6 @@ cache: false
 env:
   global:
     - PYTEST_ADDOPTS=-vv
-    # used by publish_gh_release_notes
-    - secure: "0ldsOQ5B7bFuOQl6ovvttl3dW9zDh+YG7NjKTESlKGfdzNgWnuNIEoAfu7qj8r0RCXmF4nejQM5X+KhTIdWv4NCNFGSB3QHEQ82vltuh4A400vYj76DLg7YWupFAGyNWwtsi/DPAsIoLkjoTcX8KgwYqqMx6wrNGQ9qz8VWQn+BDtg/A98D33ACpZyNLxQONQjY+EIqmS50XMkJLci+929tjA9xMC2DQCEIzOkDhJhcclGHJKY8tvhjPUGUEmNPk9KWOacaaPSroLvLAEnn28s92V3Haf8+2kkff5/cpgWLzUtf9klx72LXNQ5+1mTTxAJcN3Zxxk5ci1UCQh4hjFc2/xndf5wjPrcwlyf/q5BM/PXg5a4bJfBOV2eVlLC97KfP9MZThlxplMbZSHQLMbCFrWlWztL6xDbOHialfUq0nQmiq5gd7e0izwBXDmSbWGOMvpKutdntBJGAtn6tFO+wDR4jrPwT2sCZYOt10wQ8jiePw/30hN5bjv84+YpSyEQ6ZIK9bnx9Mo+142wXQbsjaf1YRBLsT4flGByKomR2HTf1vs++8JZmdHU60JY9YR/HYFd6wPji5Dk1Qd6bFILFXtqn3hGi3KRZzJ9fVVsQ2vfwbKBcux8pDnzTNioGDvqDRBSJreQhDnVlxcavK6vpVsAPb/VdAoVaUSlhZZAg="
 
 # setuptools-scm needs all tags in order to obtain a proper version
 git:
@@ -77,6 +75,9 @@ jobs:
       python: '3.6'
       install: pip install -U setuptools setuptools_scm tox
       script: skip
+      env:
+        # used by publish_gh_release_notes
+        - secure: "0ldsOQ5B7bFuOQl6ovvttl3dW9zDh+YG7NjKTESlKGfdzNgWnuNIEoAfu7qj8r0RCXmF4nejQM5X+KhTIdWv4NCNFGSB3QHEQ82vltuh4A400vYj76DLg7YWupFAGyNWwtsi/DPAsIoLkjoTcX8KgwYqqMx6wrNGQ9qz8VWQn+BDtg/A98D33ACpZyNLxQONQjY+EIqmS50XMkJLci+929tjA9xMC2DQCEIzOkDhJhcclGHJKY8tvhjPUGUEmNPk9KWOacaaPSroLvLAEnn28s92V3Haf8+2kkff5/cpgWLzUtf9klx72LXNQ5+1mTTxAJcN3Zxxk5ci1UCQh4hjFc2/xndf5wjPrcwlyf/q5BM/PXg5a4bJfBOV2eVlLC97KfP9MZThlxplMbZSHQLMbCFrWlWztL6xDbOHialfUq0nQmiq5gd7e0izwBXDmSbWGOMvpKutdntBJGAtn6tFO+wDR4jrPwT2sCZYOt10wQ8jiePw/30hN5bjv84+YpSyEQ6ZIK9bnx9Mo+142wXQbsjaf1YRBLsT4flGByKomR2HTf1vs++8JZmdHU60JY9YR/HYFd6wPji5Dk1Qd6bFILFXtqn3hGi3KRZzJ9fVVsQ2vfwbKBcux8pDnzTNioGDvqDRBSJreQhDnVlxcavK6vpVsAPb/VdAoVaUSlhZZAg="
       addons:
         # required by publish_gh_release_notes
         apt:
