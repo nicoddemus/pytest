@@ -81,7 +81,7 @@ jobs:
       # token to upload github release notes
       env:
         global:
-          secure: "ZpcZbxgxp2AmB9o9rC57/wkQDgfkDzqLsPrf72oNUm2DEMDT5lc3ZzXExpxEc5Sh8Vfo8VYLyu7XTDRwg+yuvzv3108CQs/k06qyCM/roFoT3AKylW5kExifDnPnHdfkQTWSz/CGC1przh9xI1N6zTSwV7+5L2wolmTJiTGZ0S+hORuXiOsZnN6WWMv6LVGEFJ8BN+W/e22iuVKBD2Py6ffoub64Ut1etntdNacKSth6mm1dTyVS4ZOmoevwpLyIBcYz9LrndvbBqigNX0zCVlsTuylyXJUM1Le2uLfyiaf5/3HSelnRiA6W+tbI6Y7i8Vv21k+5rWMH17CUDT/uSN3V8etEs2nRJT8XjPES3GrcenmChENtDdWsejtvGnnOBIjmSoFipztQbALh7IaZQ48UZC24I/rKqFAEmApshuo27HjuvFvuiyBZeG4h/bisQAd+laNT9NB9JUzRUAMZjcUDKehGX4AqQRVyQtPVUTjAXlypiBdZ+E1IAcwQDbkOVti2eMnDCz4D03NiT+lFIlAEgpkiZ4Zk2hb//rGw/e1cPxLx7IaLDBXNHIv60UEmQcfR4lRt6ZoXojxkCCi8647MTBeAh1Xqv/1LnZFkOknqgnWHA440/cT9IIGrdyeu+bKV/DqOXEHcY/FUGrWe1La2ktEHbgK16OqNGWrF1R4="
+          - secure: "ZpcZbxgxp2AmB9o9rC57/wkQDgfkDzqLsPrf72oNUm2DEMDT5lc3ZzXExpxEc5Sh8Vfo8VYLyu7XTDRwg+yuvzv3108CQs/k06qyCM/roFoT3AKylW5kExifDnPnHdfkQTWSz/CGC1przh9xI1N6zTSwV7+5L2wolmTJiTGZ0S+hORuXiOsZnN6WWMv6LVGEFJ8BN+W/e22iuVKBD2Py6ffoub64Ut1etntdNacKSth6mm1dTyVS4ZOmoevwpLyIBcYz9LrndvbBqigNX0zCVlsTuylyXJUM1Le2uLfyiaf5/3HSelnRiA6W+tbI6Y7i8Vv21k+5rWMH17CUDT/uSN3V8etEs2nRJT8XjPES3GrcenmChENtDdWsejtvGnnOBIjmSoFipztQbALh7IaZQ48UZC24I/rKqFAEmApshuo27HjuvFvuiyBZeG4h/bisQAd+laNT9NB9JUzRUAMZjcUDKehGX4AqQRVyQtPVUTjAXlypiBdZ+E1IAcwQDbkOVti2eMnDCz4D03NiT+lFIlAEgpkiZ4Zk2hb//rGw/e1cPxLx7IaLDBXNHIv60UEmQcfR4lRt6ZoXojxkCCi8647MTBeAh1Xqv/1LnZFkOknqgnWHA440/cT9IIGrdyeu+bKV/DqOXEHcY/FUGrWe1La2ktEHbgK16OqNGWrF1R4="
       deploy:
         provider: pypi
         user: nicoddemus
