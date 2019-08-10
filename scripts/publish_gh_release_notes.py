@@ -17,7 +17,7 @@ def parse_changelog(tag_name):
     p = Path(__file__).parent.parent / "CHANGELOG.rst"
     changelog_lines = p.read_text(encoding="UTF-8").splitlines()
 
-    title_regex = re.compile(r"pytest (\d\.\d\.\d) \(\d{4}-\d{2}-\d{2}\)")
+    title_regex = re.compile(r"pytest (\d\.\d+\.\d+) \(\d{4}-\d{2}-\d{2}\)")
     consuming_version = False
     version_lines = []
     for line in changelog_lines:
