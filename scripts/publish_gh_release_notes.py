@@ -10,11 +10,11 @@ Uses the following environment variables:
 
     $travis encrypt GH_RELEASE_NOTES_TOKEN=<token> -r pytest-dev/pytest
 
-  And the contents pasted in the ``env.global.secure`` section in the ``travis.yml`` file.
+  And the contents pasted in the ``deploy.env.secure`` section in the ``travis.yml`` file.
 
 The script also requires ``pandoc`` to be previously installed in the system.
 
-Requirest Python3.6+.
+Requires Python3.6+.
 """
 import os
 import re
@@ -41,7 +41,7 @@ def parse_changelog(tag_name):
     for line in changelog_lines:
         m = title_regex.match(line)
         if m:
-            # found the version we want: start to consume lines until we find a next version title
+            # found the version we want: start to consume lines until we find the next version title
             if m.group(1) == tag_name:
                 consuming_version = True
             # found a new version title while parsing the version we want: break out
