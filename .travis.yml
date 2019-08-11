@@ -5,7 +5,7 @@ stages:
 - name: test
   if: repo = pytest-dev/pytest AND tag IS NOT present
 - name: deploy
-  if: repo = pytest-dev/pytest AND tag IS present
+  if: repo = nicoddemus/pytest AND tag IS present
 python: '3.7'
 cache: false
 
