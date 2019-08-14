@@ -19,7 +19,7 @@ with advance notice in the **Deprecations** section of releases.
 .. towncrier release notes start
 
 
-pytest 4.99.10 (2019-07-04)
+pytest 4.99.11 (2019-07-04)
 ===========================
 
 Bug Fixes

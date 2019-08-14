@@ -27,7 +27,7 @@ import pypandoc
 
 def publish_github_release(token, tag_name, body):
     github = github3.login(token=token)
-    repo = github.repository("pytest-dev", "pytest")
+    repo = github.repository("nicoddemus", "pytest")
     return repo.create_release(tag_name=tag_name, body=body)
 
 
