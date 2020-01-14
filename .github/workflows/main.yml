@@ -33,9 +33,9 @@ jobs:
 #
 #          "ubuntu-py35",
 #          "ubuntu-py36",
-          "ubuntu-py37",
+#          "ubuntu-py37",
 #          "ubuntu-py37-pluggy",
-#          "ubuntu-py37-freeze",
+          "ubuntu-py37-freeze",
 #          "ubuntu-py38",
 #          "ubuntu-pypy3",
 #
