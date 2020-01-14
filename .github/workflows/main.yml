@@ -159,6 +159,7 @@ jobs:
         name: ${{ matrix.name }}
 
   deploy:
+    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
 
     runs-on: ubuntu-latest
 
@@ -184,7 +185,6 @@ jobs:
 #        user: __token__
 #        password: ${{ secrets.pypi_token }}
     - name: Publish GitHub release notes
-      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
       env:
         GH_RELEASE_NOTES_TOKEN: ${{ secrets.release_notes }}
       run: |
