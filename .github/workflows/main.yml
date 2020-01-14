@@ -182,8 +182,8 @@ jobs:
 #        password: ${{ secrets.pypi_token }}
     - name: Publish GitHub release notes
       if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-      with:
-        gh-release-notes-token: ${{ secrets.release_notes }}
+      env:
+        GH_RELEASE_NOTES_TOKEN: ${{ secrets.release_notes }}
       run: |
         sudo apt-get install pandoc
         tox -e publish-gh-release-notes
