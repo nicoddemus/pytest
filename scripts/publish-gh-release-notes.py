@@ -65,6 +65,7 @@ def convert_rst_to_md(text):
 
 
 def main(argv):
+    print(f'WORKFLOW NAME = {os.environ.get("GITHUB_WORKFLOW")}')
     if len(argv) > 1:
         tag_name = argv[1]
     else:
