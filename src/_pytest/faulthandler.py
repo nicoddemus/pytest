@@ -1,4 +1,3 @@
-import io
 import os
 import sys
 
@@ -45,7 +44,7 @@ class FaultHandlerHooks:
     def pytest_configure(self, config):
         import faulthandler
 
-        stderr_fd_copy = os.dup(self._get_stderr_fileno())
+        stderr_fd_copy = os.dup(sys.stderr.fileno())
         config.fault_handler_stderr = os.fdopen(stderr_fd_copy, "w")
         faulthandler.enable(file=config.fault_handler_stderr)
 
@@ -59,17 +58,7 @@ class FaultHandlerHooks:
         # garbage collection during interpreter shutdown
         config.fault_handler_stderr.close()
         del config.fault_handler_stderr
-        faulthandler.enable(file=self._get_stderr_fileno())
-
-    @staticmethod
-    def _get_stderr_fileno():
-        try:
-            return sys.stderr.fileno()
-        except (AttributeError, io.UnsupportedOperation):
-            # pytest-xdist monkeypatches sys.stderr with an object that is not an actual file.
-            # https://docs.python.org/3/library/faulthandler.html#issue-with-file-descriptors
-            # This is potentially dangerous, but the best we can do.
-            return sys.__stderr__.fileno()
+        faulthandler.enable(file=sys.stderr.fileno())
 
     @staticmethod
     def get_timeout_config_value(config):
