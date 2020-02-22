@@ -50,8 +50,8 @@ def print_and_exit(msg):
     raise SystemExit(1)
 
 
-def trigger_release(issue_payload_path: Path, token: str):
-    payload, base_branch = validate_and_get_issue_comment_payload(issue_payload_path)
+def trigger_release(payload_path: Path, token: str):
+    payload, base_branch = validate_and_get_issue_comment_payload(payload_path)
     if base_branch is None:
         url = payload["comment"]["url"]
         print_and_exit(
@@ -133,12 +133,10 @@ def find_next_version(base_branch):
 def main():
     init(autoreset=True)
     parser = argparse.ArgumentParser()
-    parser.add_argument("issue-payload")
+    parser.add_argument("payload")
     parser.add_argument("token")
     options = parser.parse_args()
-    trigger_release(
-        issue_payload_path=Path(options.issue_payload), token=options.token,
-    )
+    trigger_release(Path(options.payload), options.token)
 
 
 if __name__ == "__main__":
