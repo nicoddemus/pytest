@@ -20,4 +20,5 @@ jobs:
       run: |
         echo "GITHUB_RUN_ID=$GITHUB_RUN_ID"
         echo "GITHUB_RUN_NUMBER=$GITHUB_RUN_NUMBER"
+        echo "GITHUB_RUN_ID=$GITHUB_RUN_ID"
         tox -e release-on-comment -- $GITHUB_EVENT_PATH ${{ secrets.chatops }}

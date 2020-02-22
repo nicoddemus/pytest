@@ -1,9 +1,9 @@
 import argparse
 import json
+import os
 import re
 import sys
 from pathlib import Path
-from subprocess import CalledProcessError
 from subprocess import check_call
 from subprocess import check_output
 from textwrap import dedent
@@ -58,6 +58,8 @@ def trigger_release(payload_path: Path, token: str):
         print_and_exit(
             f"Comment {Fore.CYAN}{url}{Fore.RESET} did not match the trigger command."
         )
+    print()
+    print(f"Precessing release for branch {Fore.CYAN}{base_branch}")
 
     repo = login(token)
 
@@ -70,41 +72,58 @@ def trigger_release(payload_path: Path, token: str):
         issue.create_comment(str(e))
         print_and_exit(f"{Fore.RED}{e}")
 
-    release_branch = f"release-{version}"
-
-    check_call(["git", "checkout", "-b", release_branch, f"origin/{base_branch}"])
-
     try:
+        print(f"Version: {Fore.CYAN}{version}")
+
+        release_branch = f"release-{version}"
+
+        check_call(["git", "config", "user.name", "pytest bot"])
+        check_call(["git", "config", "user.email", "pytestbot@gmail.com"])
+
+        check_call(["git", "checkout", "-b", release_branch, f"origin/{base_branch}"])
+
+        print(f"Branch {Fore.CYAN}{release_branch}{Fore.RESET} created.")
+
         # TODO: remove skip-check-links
         check_call(
             [sys.executable, "scripts/release.py", version, "--skip-check-links"]
         )
-    except CalledProcessError as e:
-        link = "???"
+
+        oauth_url = f"https://{token}:x-oauth-basic@github.com/{SLUG}.git"
+        check_call(["git", "push", oauth_url, f"HEAD:{release_branch}", "--force"])
+        print(f"Branch {Fore.CYAN}{release_branch}{Fore.RESET} pushed.")
+
+        body = PR_BODY.format(comment_url=payload["comment"]["url"])
+        pr = repo.create_pull(
+            f"Prepare release {version}",
+            base=base_branch,
+            head=release_branch,
+            body=body,
+        )
+        print(f"Pull request {Fore.CYAN}{pr.url}{Fore.RESET} created.")
+
+        comment = issue.create_comment(
+            f"Opened PR for release `{version}` in #{pr.number}"
+        )
+        print(f"Notified in original comment {Fore.CYAN}{comment.url}{Fore.RESET}.")
+
+        print(f"{Fore.GREEN}Success.")
+    except Exception as e:
+        link = f"https://github.com/{SLUG}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
         issue.create_comment(
-            f"Sorry, the request to prepare release `{version}` failed, see: {link}"
+            dedent(
+                f"""
+            Sorry, the request to prepare release `{version}` from {base_branch} failed with:
+
+            ```
+            {e}
+            ```
+
+            See: {link}
+            """
+            )
         )
         print_and_exit(f"{Fore.RED}{e}")
-
-    oauth_url = f"https://{token}:x-oauth-basic@github.com/{SLUG}.git"
-
-    check_call(["git", "push", oauth_url, f"HEAD:{release_branch}", "--force"])
-
-    body = PR_BODY.format(comment_url=payload["comment"]["url"])
-    pr = repo.create_pull(
-        f"Prepare release {version}", base=base_branch, head=release_branch, body=body
-    )
-
-    comment = issue.create_comment(f"Opened PR for release `{version}` in #{pr.number}")
-    print(
-        dedent(
-            f"""
-        {Fore.GREEN}Success.{Fore.RESET}
-        notification: {Fore.CYAN}{comment.url}{Fore.RESET}
-        pull request: {Fore.CYAN}{pr.url}{Fore.RESET}
-        """
-        )
-    )
 
 
 def find_next_version(base_branch):
