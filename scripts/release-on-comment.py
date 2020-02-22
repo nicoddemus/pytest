@@ -133,8 +133,8 @@ def find_next_version(base_branch):
 def main():
     init(autoreset=True)
     parser = argparse.ArgumentParser()
-    parser.add_argument("--issue-payload")
-    parser.add_argument("--token")
+    parser.add_argument("issue-payload")
+    parser.add_argument("token")
     options = parser.parse_args()
     trigger_release(
         issue_payload_path=Path(options.issue_payload), token=options.token,
