@@ -3,6 +3,7 @@ import json
 import re
 import sys
 from pathlib import Path
+from subprocess import CalledProcessError
 from subprocess import check_call
 from subprocess import check_output
 from textwrap import dedent
@@ -73,8 +74,17 @@ def trigger_release(payload_path: Path, token: str):
 
     check_call(["git", "checkout", "-b", release_branch, f"origin/{base_branch}"])
 
-    # TODO: remove skip-check-links
-    check_call([sys.executable, version, "--skip-check-links"])
+    try:
+        # TODO: remove skip-check-links
+        check_call(
+            [sys.executable, "scripts/release.py", version, "--skip-check-links"]
+        )
+    except CalledProcessError as e:
+        link = "???"
+        issue.create_comment(
+            f"Sorry, the request to prepare release `{version}` failed, see: {link}"
+        )
+        print_and_exit(f"{Fore.RED}{e}")
 
     oauth_url = f"https://{token}:x-oauth-basic@github.com/{SLUG}.git"
 
