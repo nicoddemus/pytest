@@ -18,4 +18,4 @@ jobs:
         pip install --upgrade setuptools tox
     - name: Check/prepare
       run: |
-        tox -e release-on-comment -- $GITHUB_EVENT_PATH {{ secrets.chatops }}
+        tox -e release-on-comment -- $GITHUB_EVENT_PATH ${{ secrets.chatops }}
