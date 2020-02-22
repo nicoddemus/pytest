@@ -65,6 +65,8 @@ Let's run this without supplying our new option:
     test_sample.py:6: AssertionError
     --------------------------- Captured stdout call ---------------------------
     first
+    ========================= short test summary info ==========================
+    FAILED test_sample.py::test_answer - assert 0
     1 failed in 0.12s
 
 And now with supplying a command line option:
@@ -89,6 +91,8 @@ And now with supplying a command line option:
     test_sample.py:6: AssertionError
     --------------------------- Captured stdout call ---------------------------
     second
+    ========================= short test summary info ==========================
+    FAILED test_sample.py::test_answer - assert 0
     1 failed in 0.12s
 
 You can see that the command line option arrived in our test.  This
@@ -261,6 +265,8 @@ Let's run our little function:
     E       Failed: not configured: 42
 
     test_checkconfig.py:11: Failed
+    ========================= short test summary info ==========================
+    FAILED test_checkconfig.py::test_something - Failed: not configured: 42
     1 failed in 0.12s
 
 If you only want to hide certain exceptions, you can set ``__tracebackhide__``
@@ -443,7 +449,7 @@ Now we can profile which test functions execute the slowest:
     ========================= slowest 3 test durations =========================
     0.30s call     test_some_are_slow.py::test_funcslow2
     0.20s call     test_some_are_slow.py::test_funcslow1
-    0.11s call     test_some_are_slow.py::test_funcfast
+    0.10s call     test_some_are_slow.py::test_funcfast
     ============================ 3 passed in 0.12s =============================
 
 incremental testing - test steps
@@ -535,28 +541,10 @@ If we run this:
 .. code-block:: pytest
 
     $ pytest -rx
-    =========================== test session starts ============================
-    platform linux -- Python 3.x.y, pytest-5.x.y, py-1.x.y, pluggy-0.x.y
-    cachedir: $PYTHON_PREFIX/.pytest_cache
-    rootdir: $REGENDOC_TMPDIR
-    collected 4 items
-
-    test_step.py .Fx.                                                    [100%]
-
-    ================================= FAILURES =================================
-    ____________________ TestUserHandling.test_modification ____________________
-
-    self = <test_step.TestUserHandling object at 0xdeadbeef>
-
-        def test_modification(self):
-    >       assert 0
-    E       assert 0
-
-    test_step.py:11: AssertionError
-    ========================= short test summary info ==========================
-    XFAIL test_step.py::TestUserHandling::test_deletion
-      reason: previous test failed (test_modification)
-    ================== 1 failed, 2 passed, 1 xfailed in 0.12s ==================
+    ImportError while loading conftest '$REGENDOC_TMPDIR/conftest.py'.
+    conftest.py:3: in <module>
+        _test_failed_incremental: Dict[str, Dict[Tuple[int, ...], str]] = {}
+    E   NameError: name 'Dict' is not defined
 
 We'll see that ``test_deletion`` was not executed because ``test_modification``
 failed.  It is reported as an "expected failure".
@@ -619,57 +607,10 @@ We can run this:
 .. code-block:: pytest
 
     $ pytest
-    =========================== test session starts ============================
-    platform linux -- Python 3.x.y, pytest-5.x.y, py-1.x.y, pluggy-0.x.y
-    cachedir: $PYTHON_PREFIX/.pytest_cache
-    rootdir: $REGENDOC_TMPDIR
-    collected 7 items
-
-    test_step.py .Fx.                                                    [ 57%]
-    a/test_db.py F                                                       [ 71%]
-    a/test_db2.py F                                                      [ 85%]
-    b/test_error.py E                                                    [100%]
-
-    ================================== ERRORS ==================================
-    _______________________ ERROR at setup of test_root ________________________
-    file $REGENDOC_TMPDIR/b/test_error.py, line 1
-      def test_root(db):  # no db here, will error out
-    E       fixture 'db' not found
-    >       available fixtures: cache, capfd, capfdbinary, caplog, capsys, capsysbinary, doctest_namespace, monkeypatch, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory
-    >       use 'pytest --fixtures [testpath]' for help on them.
-
-    $REGENDOC_TMPDIR/b/test_error.py:1
-    ================================= FAILURES =================================
-    ____________________ TestUserHandling.test_modification ____________________
-
-    self = <test_step.TestUserHandling object at 0xdeadbeef>
-
-        def test_modification(self):
-    >       assert 0
-    E       assert 0
-
-    test_step.py:11: AssertionError
-    _________________________________ test_a1 __________________________________
-
-    db = <conftest.DB object at 0xdeadbeef>
-
-        def test_a1(db):
-    >       assert 0, db  # to show value
-    E       AssertionError: <conftest.DB object at 0xdeadbeef>
-    E       assert 0
-
-    a/test_db.py:2: AssertionError
-    _________________________________ test_a2 __________________________________
-
-    db = <conftest.DB object at 0xdeadbeef>
-
-        def test_a2(db):
-    >       assert 0, db  # to show value
-    E       AssertionError: <conftest.DB object at 0xdeadbeef>
-    E       assert 0
-
-    a/test_db2.py:2: AssertionError
-    ============= 3 failed, 2 passed, 1 xfailed, 1 error in 0.12s ==============
+    ImportError while loading conftest '$REGENDOC_TMPDIR/conftest.py'.
+    conftest.py:3: in <module>
+        _test_failed_incremental: Dict[str, Dict[Tuple[int, ...], str]] = {}
+    E   NameError: name 'Dict' is not defined
 
 The two test modules in the ``a`` directory see the same ``db`` fixture instance
 while the one test in the sister-directory ``b`` doesn't see it.  We could of course
@@ -758,6 +699,9 @@ and run them:
     E       assert 0
 
     test_module.py:6: AssertionError
+    ========================= short test summary info ==========================
+    FAILED test_module.py::test_fail1 - assert 0
+    FAILED test_module.py::test_fail2 - assert 0
     ============================ 2 failed in 0.12s =============================
 
 you will have a "failures" file which contains the failing test ids:
@@ -873,6 +817,10 @@ and run it:
     E       assert 0
 
     test_module.py:19: AssertionError
+    ========================= short test summary info ==========================
+    FAILED test_module.py::test_call_fails - assert 0
+    FAILED test_module.py::test_fail2 - assert 0
+    ERROR test_module.py::test_setup_fails - assert 0
     ======================== 2 failed, 1 error in 0.12s ========================
 
 You'll see that the fixture finalizers could use the precise reporting
