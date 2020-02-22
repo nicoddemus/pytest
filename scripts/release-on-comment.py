@@ -103,7 +103,7 @@ def trigger_release(payload_path: Path, token: str):
         print(f"Pull request {Fore.CYAN}{pr.url}{Fore.RESET} created.")
 
         comment = issue.create_comment(
-            f"Opened PR for release `{version}` in #{pr.number}"
+            f"Opened PR for release `{version}` in #{pr.number}."
         )
         print(f"Notified in original comment {Fore.CYAN}{comment.url}{Fore.RESET}.")
 
@@ -119,7 +119,7 @@ def trigger_release(payload_path: Path, token: str):
             {e}
             ```
 
-            See: {link}
+            See: {link}.
             """
             )
         )
