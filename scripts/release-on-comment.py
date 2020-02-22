@@ -1,6 +1,7 @@
 import argparse
 import json
 import re
+import sys
 from pathlib import Path
 from subprocess import check_call
 from subprocess import check_output
@@ -10,8 +11,6 @@ from typing import Optional
 from colorama import Fore
 from colorama import init
 from github3.repos import Repository
-
-from .release import pre_release
 
 
 class InvalidFeatureRelease(Exception):
@@ -74,7 +73,8 @@ def trigger_release(issue_payload_path: Path, token: str):
 
     check_call(["git", "checkout", "-b", release_branch, f"origin/{base_branch}"])
 
-    pre_release(version, skip_check_links=False)
+    # TODO: remove skip-check-links
+    check_call([sys.executable, version, "--skip-check-links"])
 
     oauth_url = f"https://{token}:x-oauth-basic@github.com/{SLUG}.git"
 

@@ -1,4 +1,4 @@
-name: prepare release
+name: release on comment
 
 on: issue_comment
 
@@ -18,4 +18,4 @@ jobs:
         pip install --upgrade setuptools tox
     - name: Check/prepare
       run: |
-        python scripts/release-on-comment.py $GITHUB_EVENT_PATH {{ secrets.chatops }}
+        tox -e release-on-comment -- $GITHUB_EVENT_PATH {{ secrets.chatops }}
