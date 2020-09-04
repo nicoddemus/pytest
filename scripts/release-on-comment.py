@@ -183,38 +183,25 @@ def trigger_release(payload_path: Path, token: str) -> None:
         error_contents = e.output
     except Exception as e:
         error_contents = str(e)
-        link = f"https://github.com/{SLUG}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
-        issue.create_comment(
-            dedent(
-                f"""
-            Sorry, the request to prepare release `{version}` from {base_branch} failed with:
-
-            ```
-            {e}
-            ```
-
-            See: {link}.
-            """
-            )
-        )
-        print_and_exit(f"{Fore.RED}{e}")
 
     if error_contents:
         link = f"https://github.com/{SLUG}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
-        issue.create_comment(
-            dedent(
-                f"""
-                Sorry, the request to prepare release `{version}` from {base_branch} failed with:
-
-                ```
-                {error_contents}
-                ```
-
-                See: {link}.
-                """
-            )
+        msg = ERROR_COMMENT.format(
+            version=version, base_branch=base_branch, contents=error_contents, link=link
         )
+        issue.create_comment(msg)
         print_and_exit(f"{Fore.RED}{error_contents}")
+
+
+ERROR_COMMENT = """\
+The request to prepare release `{version}` from {base_branch} failed with:
+
+```
+{contents}
+```
+
+See: {link}.
+"""
 
 
 def find_next_version(base_branch: str, is_major: bool) -> str:
