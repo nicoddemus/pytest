@@ -147,11 +147,10 @@ def trigger_release(payload_path: Path, token: str) -> None:
 
         # import to use tox here because we have changed branches, so dependencies
         # might have changed
+        cmdline = ["tox", "-e", "release", "--", version, "--skip-check-links"]
+        print("Running", " ".join(cmdline))
         run(
-            ["tox", "-e", "release", "--", version, "--skip-check-links"],
-            text=True,
-            check=True,
-            capture_output=True,
+            cmdline, text=True, check=True, capture_output=True,
         )
 
         oauth_url = f"https://{token}:x-oauth-basic@github.com/{SLUG}.git"
