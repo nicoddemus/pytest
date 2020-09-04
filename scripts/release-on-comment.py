@@ -30,7 +30,6 @@ import argparse
 import json
 import os
 import re
-import sys
 from pathlib import Path
 from subprocess import CalledProcessError
 from subprocess import check_call
@@ -146,8 +145,10 @@ def trigger_release(payload_path: Path, token: str) -> None:
 
         print(f"Branch {Fore.CYAN}{release_branch}{Fore.RESET} created.")
 
+        # import to use tox here because we have changed branches, so dependencies
+        # might have changed
         run(
-            [sys.executable, "scripts/release.py", version, "--skip-check-links"],
+            ["tox", "-e", "release", "--", version, "--skip-check-links"],
             text=True,
             check=True,
             capture_output=True,
