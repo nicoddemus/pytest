@@ -529,7 +529,9 @@ def import_path(
             module_file = module_file[: -(len(os.path.sep + "__init__.py"))]
 
         try:
-            is_same = os.path.samefile(str(path), module_file)
+            is_same = path == Path(module_file) or os.path.samefile(
+                str(path), module_file
+            )
         except FileNotFoundError:
             is_same = False
 
