@@ -14,6 +14,7 @@ import xml.etree.ElementTree as ET
 from datetime import datetime
 from typing import Callable
 from typing import Dict
+from typing import Generator
 from typing import List
 from typing import Match
 from typing import Optional
@@ -363,11 +364,18 @@ def record_testsuite_property(request: FixtureRequest) -> Callable[[str, object]
         """No-op function in case --junitxml was not passed in the command-line."""
         __tracebackhide__ = True
         _check_record_param_type("name", name)
+        global_properties[name] = value
 
-    xml = request.config._store.get(xml_key, None)
-    if xml is not None:
-        record_func = xml.add_global_property  # noqa
+    global_properties = request.config._store.setdefault("_testsuite_properties", {})
     return record_func
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item: "Item") -> Generator[None, TestReport, None]:
+    result = yield
+    report = result.get_result()
+    if "_testsuite_properties" in item.config._store:
+        report._xml_testsuite_properties = item.config._store["_testsuite_properties"]
 
 
 def pytest_addoption(parser: Parser) -> None:
@@ -550,6 +558,11 @@ class LogXML:
             -> teardown node2
             -> teardown node1
         """
+        properties = getattr(report, "_xml_testsuite_properties", None)
+        if properties:
+            for name, value in properties.items():
+                self.add_global_property(name, value)
+
         close_report = None
         if report.passed:
             if report.when == "call":  # ignore setup/teardown
@@ -680,8 +693,6 @@ class LogXML:
         terminalreporter.write_sep("-", "generated xml file: {}".format(self.logfile))
 
     def add_global_property(self, name: str, value: object) -> None:
-        __tracebackhide__ = True
-        _check_record_param_type("name", name)
         self.global_properties.append((name, bin_xml_escape(value)))
 
     def _get_global_properties_node(self) -> Optional[ET.Element]:
