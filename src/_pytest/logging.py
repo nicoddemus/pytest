@@ -24,6 +24,7 @@ from typing import Generic
 from typing import Literal
 from typing import TYPE_CHECKING
 from typing import TypeVar
+import weakref
 
 from _pytest import nodes
 from _pytest._io import TerminalWriter
@@ -334,67 +335,36 @@ def pytest_addoption(parser: Parser) -> None:
 _HandlerType = TypeVar("_HandlerType", bound=logging.Handler)
 
 
-class _PropagationEndHandler(logging.Handler):
-    """Stands in for a pytest handler on a logger which did not propagate when
-    capture started, or on one of its ancestors.
+class _HandleOnceFilter(logging.Filter):
+    """Lets each record through only once.
 
-    It forwards a record only if the propagation walk, as it stands at emit
-    time, ends below root at a logger that does not otherwise deliver to the
-    pytest handler; otherwise root (or another stand-in further up) delivers it.
-    It has no level, filters or formatter of its own: those of the pytest
-    handler apply.
+    The handler is attached to root and to the loggers which do not propagate
+    when capture starts; if one of those starts propagating, its records reach
+    the handler twice (#15064).
     """
 
-    def __init__(
-        self,
-        logger: logging.Logger,
-        handler: logging.Handler,
-        delivered_at: AbstractSet[int],
-    ) -> None:
-        # Not Handler.__init__(): registering each short-lived stand-in in
-        # logging's global handler list dominated the cost of entering.
-        self._name = None
-        self.level = logging.NOTSET
-        self.filters = []
-        self.formatter = None
-        self._closed = False
-        self.lock = None
-        self.logger = logger
-        self.handler = handler
-        self.delivered_at = delivered_at
+    def __init__(self) -> None:
+        super().__init__()
+        self.seen: weakref.WeakSet[LogRecord] = weakref.WeakSet()
 
-    def handle(self, record: LogRecord) -> bool:
-        # Overrides handle(), not emit(): the base handle() would hold this
-        # handler's lock while the target takes its own, an ordering a thread
-        # logging from inside the target can deadlock against.
-        if record.levelno < self.handler.level:
+    def filter(self, record: LogRecord) -> bool:
+        if record in self.seen:
             return False
-        end = self.logger
-        while end.propagate:
-            end = end.parent  # type: ignore[assignment]
-            if id(end) in self.delivered_at:
-                return False
-        if self.handler in end.handlers:
-            # The pytest handler was also added to this logger directly.
-            return False
-        return self.handler.handle(record)
-
-    def createLock(self) -> None:
-        # Never locked (see handle()); as logging.NullHandler, skip creating
-        # and fork-registering a lock for every stand-in of every capture.
-        self.lock = None
+        self.seen.add(record)
+        return True
 
 
 # Not using @contextmanager for performance reasons.
 class catching_logs(Generic[_HandlerType]):
     """Context manager that prepares the whole logging machinery properly."""
 
-    __slots__ = ("attached", "handler", "level", "orig_level")
+    __slots__ = ("attached_loggers", "handle_once", "handler", "level", "orig_level")
 
     def __init__(self, handler: _HandlerType, level: int | None = None) -> None:
         self.handler = handler
         self.level = level
-        self.attached: list[tuple[logging.Logger, logging.Handler]] = []
+        self.attached_loggers: list[logging.Logger] = []
+        self.handle_once: _HandleOnceFilter | None = None
 
     def __enter__(self) -> _HandlerType:
         root_logger = logging.getLogger()
@@ -402,41 +372,21 @@ class catching_logs(Generic[_HandlerType]):
             self.handler.setLevel(self.level)
         # Attach to root logger.
         root_logger.addHandler(self.handler)
-        self.attached.append((root_logger, self.handler))
-        # Records from non-propagating loggers never reach root, so these get
-        # a stand-in which decides at emit time, from the then current
-        # `propagate` values, whether root will see the record.
-        # Loggers that *become* non-propagating after `__enter__` are missed
-        # unless a logger in this set lies below them.
-        # Their ancestors get one too, so a record stopped at an ancestor
-        # which becomes non-propagating mid-test is still captured.
-        ends: dict[int, logging.Logger] = {}
+        self.attached_loggers.append(root_logger)
+        # Attach to all non-propagating loggers (won't reach root).
+        # Note that will miss loggers that *become* non-propagating
+        # after the `__enter__`. Not worth the trouble for now.
         for logger in root_logger.manager.loggerDict.values():
             if (
                 isinstance(logger, logging.Logger)
                 and not logger.propagate
                 and logger is not root_logger
             ):
-                while logger is not root_logger and id(logger) not in ends:
-                    ends[id(logger)] = logger
-                    logger = logger.parent  # type: ignore[assignment]
-        if ends:
-            delivered_at = frozenset([id(root_logger), *ends])
-            by_list: dict[int, list[logging.Logger]] = {}
-            for logger in ends.values():
-                by_list.setdefault(id(logger.handlers), []).append(logger)
-            for loggers in by_list.values():
-                logger = loggers[0]
-                if len(loggers) > 1:
-                    # Loggers sharing one handlers list cannot tell their
-                    # records apart; attach the pytest handler itself, as
-                    # before #15064.
-                    logger.addHandler(self.handler)
-                    self.attached.append((logger, self.handler))
-                    continue
-                stand_in = _PropagationEndHandler(logger, self.handler, delivered_at)
-                logger.addHandler(stand_in)
-                self.attached.append((logger, stand_in))
+                logger.addHandler(self.handler)
+                self.attached_loggers.append(logger)
+        if len(self.attached_loggers) > 1:
+            self.handle_once = _HandleOnceFilter()
+            self.handler.addFilter(self.handle_once)
         if self.level is not None:
             # Non-propagating loggers still inherit the level (unless a logger
             # explicitly set level), so only do this on the root logger.
@@ -453,9 +403,12 @@ class catching_logs(Generic[_HandlerType]):
         root_logger = logging.getLogger()
         if self.level is not None:
             root_logger.setLevel(self.orig_level)
-        for logger, handler in self.attached:
-            logger.removeHandler(handler)
-        self.attached.clear()
+        for logger in self.attached_loggers:
+            logger.removeHandler(self.handler)
+        self.attached_loggers.clear()
+        if self.handle_once is not None:
+            self.handler.removeFilter(self.handle_once)
+            self.handle_once = None
 
 
 class LogCaptureHandler(logging_StreamHandler):

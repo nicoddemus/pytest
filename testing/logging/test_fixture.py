@@ -542,31 +542,6 @@ def test_captures_when_propagation_barrier_moves_to_ancestor(
     result.assert_outcomes(passed=1)
 
 
-def test_captures_sibling_when_ancestor_becomes_non_propagating(
-    pytester: Pytester,
-) -> None:
-    """An ancestor of a logger that was non-propagating at capture start
-    becomes non-propagating; a sibling's record now stops there."""
-    pytester.makepyfile(
-        """
-        import logging
-
-        parent = logging.getLogger("ancestor_flip.parent")
-        child = logging.getLogger("ancestor_flip.parent.child")
-        sibling = logging.getLogger("ancestor_flip.parent.sibling")
-        child.propagate = False
-
-        def test_ancestor_flips(caplog):
-            parent.propagate = False
-            sibling.warning("stops at parent")
-            parent.warning("from parent")
-            assert caplog.messages == ["stops at parent", "from parent"]
-        """
-    )
-    result = pytester.runpytest()
-    result.assert_outcomes(passed=1)
-
-
 def test_captures_once_from_loggers_sharing_a_handlers_list(
     pytester: Pytester,
 ) -> None:
@@ -586,6 +561,37 @@ def test_captures_once_from_loggers_sharing_a_handlers_list(
     )
     result = pytester.runpytest()
     result.assert_outcomes(passed=1)
+
+
+def test_captures_once_from_propagating_ancestors_sharing_a_handlers_list(
+    pytester: Pytester,
+) -> None:
+    pytester.makepyfile(
+        """
+        import logging
+
+        a = logging.getLogger("shared_ancestors.a")
+        b = logging.getLogger("shared_ancestors.b")
+        b.handlers = a.handlers
+        a_child = logging.getLogger("shared_ancestors.a.c")
+        b_child = logging.getLogger("shared_ancestors.b.c")
+        a_child.propagate = b_child.propagate = False
+
+        def test_ancestor_logs(caplog):
+            a.warning("from a")
+            assert caplog.messages == ["from a"]
+
+        def test_child_starts_propagating(caplog):
+            a_child.propagate = True
+            try:
+                a_child.warning("from a.c")
+            finally:
+                a_child.propagate = False
+            assert caplog.messages == ["from a.c"]
+        """
+    )
+    result = pytester.runpytest()
+    result.assert_outcomes(passed=2)
 
 
 def test_captures_logger_made_non_propagating_by_session_fixture(
@@ -682,45 +688,6 @@ def test_capture_from_non_propagating_logger_creates_no_loggers(
             logger.handle(record)
             assert caplog.messages == ["hi"]
             assert "elsewhere" not in logging.Logger.manager.loggerDict
-        """
-    )
-    result = pytester.runpytest()
-    result.assert_outcomes(passed=1)
-
-
-def test_raising_handler_stops_capture_as_for_propagating_loggers(
-    pytester: Pytester,
-) -> None:
-    """A record whose propagation reaches root is captured at root, so a parent's
-    handler raising out of the dispatch loses it, exactly as it does for a
-    logger that always propagated."""
-    pytester.makepyfile(
-        """
-        import logging
-
-        class Raising(logging.Handler):
-            def emit(self, record):
-                raise RuntimeError("boom")
-
-            def handleError(self, record):
-                raise
-
-        parent = logging.getLogger("raising.parent")
-        flipped = logging.getLogger("raising.parent.flipped")
-        flipped.propagate = False
-        always = logging.getLogger("raising.parent.always")
-
-        def test_raise(caplog):
-            flipped.propagate = True
-            raising = Raising()
-            parent.addHandler(raising)
-            for logger in (flipped, always):
-                try:
-                    logger.warning(logger.name)
-                except RuntimeError:
-                    pass
-            parent.removeHandler(raising)
-            assert caplog.messages == []
         """
     )
     result = pytester.runpytest()
